@@ -47,3 +47,15 @@ node genDir.js structure.txt
 ```
 
 Will create the intuitive directory.
+
+## treecat.rs
+Generates a summary of the folder.
+It generates a tree diagram of the directory.
+It also displays all the files in the directory.
+
+## install.sh
+Sets up rust,js scripts and saves it as an alias.
+### Example
+```
+./install.sh treecat.rs
+```

@@ -1,22 +1,28 @@
 use std::env;
 use std::fs;
-use std::io::{self, BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write as IoWrite};
+use std::fmt::Write; // for String's write_fmt method
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 
-fn main() -> io::Result<()> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Usage: treecat [-a] [-s] [-l] [directory]
+    //   -a: include dot files/folders (default: false)
+    //   -s: summary mode (print only the first 10 lines per file)
+    //   -l: list output to stdout (default: copy output to clipboard)
+    //   directory: target directory (default: ".")
     let args: Vec<String> = env::args().collect();
     let mut include_dots = false;
     let mut summary_mode = false;
+    let mut list_output = false; // if true, print to stdout; if false, copy to clipboard (default)
     let mut directory = ".".to_string();
 
     for arg in &args[1..] {
-        if arg == "-a" {
-            include_dots = true;
-        } else if arg == "-s" {
-            summary_mode = true;
-        } else {
-            directory = arg.clone();
+        match arg.as_str() {
+            "-a" => include_dots = true,
+            "-s" => summary_mode = true,
+            "-l" => list_output = true,
+            _ => directory = arg.clone(),
         }
     }
 
@@ -27,35 +33,48 @@ fn main() -> io::Result<()> {
     }
 
     let git_ignore = target_dir.join(".git").exists();
-    if git_ignore {
-        println!(
-            "Note: '{}' is a Git repository. Obeying .gitignore rules.",
-            directory
-        );
-    }
+    let mut output = String::new();
 
-    println!(
-        "{}",
+    // Print the tree header.
+    let header = if directory == "." {
+        ".".to_string()
+    } else {
         target_dir
             .file_name()
             .unwrap_or_else(|| target_dir.as_os_str())
             .to_string_lossy()
-    );
-    print_tree(target_dir, "", include_dots, git_ignore, target_dir)?;
+            .into_owned()
+    };
+    writeln!(output, "{}", header)?;
+    print_tree_buffer(target_dir, "", include_dots, git_ignore, target_dir, &mut output)?;
 
-    println!("\n----- File Contents -----\n");
-    cat_files(target_dir, include_dots, git_ignore, target_dir, summary_mode)?;
+    // (No "----- File Contents -----" header is printed.)
+
+    // Print file contents.
+    cat_files_buffer(target_dir, include_dots, git_ignore, target_dir, summary_mode, &mut output)?;
+
+    // If -l is passed, list output to stdout; otherwise, copy to clipboard using pbcopy.
+    if list_output {
+        print!("{}", output);
+    } else {
+        let mut child = Command::new("pbcopy")
+            .stdin(Stdio::piped())
+            .spawn()?;
+        child.stdin.as_mut().unwrap().write_all(output.as_bytes())?;
+    }
 
     Ok(())
 }
 
-fn print_tree(
+/// Recursively writes a tree-like structure of the directory into `out`.
+fn print_tree_buffer(
     dir: &Path,
     prefix: &str,
     include_dots: bool,
     git_ignore: bool,
     target_dir: &Path,
-) -> io::Result<()> {
+    out: &mut String,
+) -> Result<(), Box<dyn std::error::Error>> {
     let mut entries: Vec<PathBuf> = vec![];
 
     for entry in fs::read_dir(dir)? {
@@ -63,6 +82,7 @@ fn print_tree(
         let path = entry.path();
         let name = entry.file_name().to_string_lossy().into_owned();
 
+        // Skip special entries and (unless requested) dot files/folders.
         if name == "." || name == ".." || (!include_dots && name.starts_with('.')) {
             continue;
         }
@@ -72,6 +92,7 @@ fn print_tree(
         entries.push(path);
     }
 
+    // Sort entries alphabetically.
     entries.sort_by(|a, b| {
         a.file_name()
             .unwrap()
@@ -83,35 +104,38 @@ fn print_tree(
     for (i, entry) in entries.iter().enumerate() {
         let is_last = i == total - 1;
         let branch = if is_last { "└── " } else { "├── " };
-        println!(
+        writeln!(
+            out,
             "{}{}{}",
             prefix,
             branch,
             entry.file_name().unwrap().to_string_lossy()
-        );
+        )?;
         if entry.is_dir() {
             let new_prefix = if is_last {
                 format!("{}    ", prefix)
             } else {
                 format!("{}│   ", prefix)
             };
-            print_tree(entry, &new_prefix, include_dots, git_ignore, target_dir)?;
+            print_tree_buffer(entry, &new_prefix, include_dots, git_ignore, target_dir, out)?;
         }
     }
     Ok(())
 }
 
-/// Recursively "cats" the files (prints their contents).
-/// In summary mode, only the first 10 lines are printed.
-/// If a file isn't valid UTF-8 (or is binary), a message is printed instead.
-/// Additionally, if the file name is Cargo.lock or package-lock.json, its contents are skipped.
-fn cat_files(
+/// Recursively "cats" the files (prints their contents) into `out`.
+/// - In summary mode, only the first 10 lines of each file are printed.
+/// - If a file is binary or not valid UTF-8, a placeholder message is printed.
+/// - For files named Cargo.lock or package-lock.json, the contents are skipped.
+/// - Each file’s content is preceded by a custom header.
+fn cat_files_buffer(
     dir: &Path,
     include_dots: bool,
     git_ignore: bool,
     target_dir: &Path,
     summary: bool,
-) -> io::Result<()> {
+    out: &mut String,
+) -> Result<(), Box<dyn std::error::Error>> {
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
@@ -126,38 +150,42 @@ fn cat_files(
 
         if path.is_file() {
             let rel_path = path.strip_prefix(target_dir).unwrap_or(&path);
-            println!("----- {} -----", rel_path.to_string_lossy());
+            writeln!(
+                out,
+                "/////////////////////// The following file is: {} ///////////////////////",
+                rel_path.to_string_lossy()
+            )?;
             if name == "Cargo.lock" || name == "package-lock.json" {
-                println!("(File contents skipped)");
+                writeln!(out, "(File contents skipped)")?;
             } else if summary {
                 let file = fs::File::open(&path)?;
                 let reader = BufReader::new(file);
                 let mut printed = 0;
                 for line in reader.lines() {
                     if printed >= 10 {
-                        println!("...");
+                        writeln!(out, "...")?;
                         break;
                     }
                     match line {
                         Ok(l) => {
-                            println!("{}", l);
+                            writeln!(out, "{}", l)?;
                             printed += 1;
                         }
                         Err(_) => {
-                            println!("(Binary file, not printed)");
+                            writeln!(out, "(Binary file, not printed)")?;
                             break;
                         }
                     }
                 }
             } else {
                 match fs::read_to_string(&path) {
-                    Ok(contents) => println!("{}", contents),
-                    Err(_) => println!("(Binary file, not printed)"),
+                    Ok(contents) => writeln!(out, "{}", contents)?,
+                    Err(_) => writeln!(out, "(Binary file, not printed)")?,
                 }
             }
-            println!();
+            writeln!(out)?;
         } else if path.is_dir() {
-            cat_files(&path, include_dots, git_ignore, target_dir, summary)?;
+            cat_files_buffer(&path, include_dots, git_ignore, target_dir, summary, out)?;
         }
     }
     Ok(())

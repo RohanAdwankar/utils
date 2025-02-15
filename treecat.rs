@@ -6,15 +6,17 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Usage: treecat [-a] [-s] [-l] [directory]
+    // Usage: treecat [-a] [-s] [-l] [-t] [directory]
     //   -a: include dot files/folders (default: false)
     //   -s: summary mode (print only the first 10 lines per file)
     //   -l: list output to stdout (default: copy output to clipboard)
+    //   -t: tree only mode (display only the directory tree and print to stdout)
     //   directory: target directory (default: ".")
     let args: Vec<String> = env::args().collect();
     let mut include_dots = false;
     let mut summary_mode = false;
     let mut list_output = false; // if true, print to stdout; if false, copy to clipboard (default)
+    let mut tree_only = false;
     let mut directory = ".".to_string();
 
     for arg in &args[1..] {
@@ -22,6 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "-a" => include_dots = true,
             "-s" => summary_mode = true,
             "-l" => list_output = true,
+            "-t" => tree_only = true,
             _ => directory = arg.clone(),
         }
     }
@@ -48,13 +51,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     writeln!(output, "{}", header)?;
     print_tree_buffer(target_dir, "", include_dots, git_ignore, target_dir, &mut output)?;
 
-    // (No "----- File Contents -----" header is printed.)
+    // If not in tree only mode, print file contents.
+    if !tree_only {
+        cat_files_buffer(target_dir, include_dots, git_ignore, target_dir, summary_mode, &mut output)?;
+    }
 
-    // Print file contents.
-    cat_files_buffer(target_dir, include_dots, git_ignore, target_dir, summary_mode, &mut output)?;
-
-    // If -l is passed, list output to stdout; otherwise, copy to clipboard using pbcopy.
-    if list_output {
+    // If tree only mode or -l is passed, list output to stdout; otherwise, copy to clipboard using pbcopy.
+    if tree_only || list_output {
         print!("{}", output);
     } else {
         let mut child = Command::new("pbcopy")

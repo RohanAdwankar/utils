@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Usage: treecat [-a] [-s] [-l] [-t] [directory]
+    // Usage: folder-summary [-a] [-s] [-l] [-t] [directory]
     //   -a: include dot files/folders (default: false)
     //   -s: summary mode (print only the first 10 lines per file)
     //   -l: list output to stdout (default: copy output to clipboard)

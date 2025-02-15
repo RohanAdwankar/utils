@@ -1,0 +1,9 @@
+[package]
+name = "fosum"
+version = "0.1.0"
+authors = ["Rohan Adwankar <rohan.adwankar@gmail.com>"]
+description = "A simple tool that summarizes file folders. Useful for passing context to LLMs"
+license = "MIT"
+repository = "https://github.com/RohanAdwankar/utils"
+readme = "README.md"
+keywords = ["LLM","Folders"]

@@ -1,2 +1,9 @@
 treecat
 /fosum/target
+fosum-py/.DS_Store
+/fosum-py/dist
+/fosum-py/fosum.egg-info
+fosum-py/fosum/.DS_Store
+fosum-py/fosum/bin/.DS_Store
+/fosum-rs/target
+.DS_Store

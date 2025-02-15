@@ -6,7 +6,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="fosum",
-    version="0.6.0",
+    version="0.7.0",
     description="A simple tool that summarizes file folders. Useful for passing context to LLMs.",
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -1,6 +1,6 @@
 [package]
 name = "fosum"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Rohan Adwankar <rohan.adwankar@gmail.com>"]
 description = "A simple tool that summarizes file folders. Useful for passing context to LLMs"
 license = "MIT"

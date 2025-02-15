@@ -7,5 +7,9 @@ Supports options:
 - **-a**: include dot files/folders
 - **-s**: summary mode (first 10 lines per file)
 - **-l**: list output to stdout
-- **-t**: tree-only mode (prints just a tree diagram of the rpo)
-Usage: `cargo run -- [options] [directory]`
+- **-t**: tree-only mode (prints just a tree diagram of the repo)
+
+```
+pip install fosum
+fosum
+```

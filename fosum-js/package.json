@@ -1,6 +1,6 @@
 {
     "name": "fosum",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "description": "A simple tool that summarizes file folders. Useful for passing context to LLMs.",
     "main": "index.js",
     "bin": {

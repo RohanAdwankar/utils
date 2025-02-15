@@ -1,4 +1,4 @@
-# fosom: folder summary tool
+# fosum: folder summary tool
 
 Tool for summarizing a folder.
 Useful for passing context of a repo to an LLM.

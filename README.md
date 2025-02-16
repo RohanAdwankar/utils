@@ -2,6 +2,27 @@
 
 These are some random utility scripts I use to build faster.
 
+## fosum
+Tool for summarizing a folder.
+Useful for passing context of a repo to an LLM.
+Default behavior copies summary to clipboard and outputs nothing.
+Supports options:  
+- **-a**: include dot files/folders
+- **-s**: summary mode (first 10 lines per file)
+- **-l**: list output to stdout
+- **-t**: tree-only mode (prints just a tree diagram of the rpo)
+  
+Running:
+```
+npm install -g fosum OR pip install fosum OR cargo install fosum
+fosum
+```
+
+
+Rust: ![Crates.io Downloads (latest version)](https://img.shields.io/crates/dv/fosum)   JavaScript: ![NPM Downloads](https://img.shields.io/npm/dw/fosum)   Python: [![PyPI Downloads](https://static.pepy.tech/badge/fosum)](https://pepy.tech/projects/fosum)
+
+
+
 ## compress_video.sh
 Uses ffmpeg to compress a video to a desired file size. Useful for when macOS screen recordings are too large for sharing.
 
@@ -47,26 +68,6 @@ node genDir.js structure.txt
 ```
 
 Will create the intuitive directory.
-
-## fosum
-Tool for summarizing a folder.
-Useful for passing context of a repo to an LLM.
-Default behavior copies summary to clipboard and outputs nothing.
-Supports options:  
-- **-a**: include dot files/folders
-- **-s**: summary mode (first 10 lines per file)
-- **-l**: list output to stdout
-- **-t**: tree-only mode (prints just a tree diagram of the rpo)
-  
-Running:
-```
-npm install -g fosum OR pip install fosum OR cargo install fosum
-fosum
-```
-
-
-![Crates.io Downloads (latest version)](https://img.shields.io/crates/dv/fosum)
-
 
 ## install.sh
 Sets up rust,js scripts and saves it as an alias.

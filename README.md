@@ -22,7 +22,6 @@ fosum
 Rust: ![Crates.io Downloads (latest version)](https://img.shields.io/crates/dv/fosum)   JavaScript: ![NPM Downloads](https://img.shields.io/npm/dw/fosum)   Python: [![PyPI Downloads](https://static.pepy.tech/badge/fosum)](https://pepy.tech/projects/fosum)
 
 
-
 ## compress_video.sh
 Uses ffmpeg to compress a video to a desired file size. Useful for when macOS screen recordings are too large for sharing.
 
@@ -75,3 +74,6 @@ Sets up rust,js scripts and saves it as an alias.
 ```
 ./install.sh treecat.rs
 ```
+
+## size.sh
+Script for when your computer is out of memory to find typically useless stuff.

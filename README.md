@@ -80,3 +80,9 @@ Script for when your computer is out of memory to find typically useless stuff.
 
 ## speed.sh
 Script for when you need to make a video a specific time. It will speed it up to achieve that time.
+
+## frames.sh
+Script for when you need to make a video a specifc frame rate. Useful for uploading to sites like X which have FPS limits.
+
+## prepare_video.sh
+Script to specify length and fps of your video.

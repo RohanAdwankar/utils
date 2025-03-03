@@ -77,3 +77,6 @@ Sets up rust,js scripts and saves it as an alias.
 
 ## size.sh
 Script for when your computer is out of memory to find typically useless stuff.
+
+## speed.sh
+Script for when you need to make a video a specific time. It will speed it up to achieve that time.

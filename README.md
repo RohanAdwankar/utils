@@ -86,3 +86,6 @@ Script for when you need to make a video a specifc frame rate. Useful for upload
 
 ## prepare_video.sh
 Script to specify length and fps of your video.
+
+## ssh.sh
+Script for setting up ssh easily.

@@ -89,3 +89,6 @@ Script to specify length and fps of your video.
 
 ## ssh.sh
 Script for setting up ssh easily.
+
+## command to see node_modules 
+find ~/ \( -path ~/.Trash -o -path ~/Library -o -path ~/.nvm \) -prune -o -type d -name "node_modules" -prune -exec du -sh {} \;
